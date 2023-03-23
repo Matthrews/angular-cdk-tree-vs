@@ -1,0 +1,9 @@
+.virtual-scroll-container {
+  border: 2px solid cyan;
+  height: 200px;
+  overflow: auto;
+}
+
+cdk-tree-node {
+  display: block;
+}

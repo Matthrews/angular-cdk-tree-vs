@@ -1,0 +1,38 @@
+<p>Open the developer console to see the full underlying data</p>
+<div>Total number of underlying nodes: {{ dataSource._flattenedData.value.length }}</div>
+<button (click)="treeControl.expandAll()">Expand all</button>
+<button (click)="treeControl.collapseAll()">Collapse all</button>
+<p>Note that both examples below are sourcing from the same unerlying FlatTreeDataSource and interact with the same underlying FlatTreeControl, so they will appear to behave in parallel even though they are implemented differently</p>
+
+<!-- cdk-tree: UNFORTUNATELY, THIS DOES NOT WORK WITH CDK VIRTUAL SCROLLING -->
+<p>Using cdk-tree: Unfortunately, cdk-tree does not support virtual scrolling</p>
+<div class="virtual-scroll-container">
+  <cdk-tree [dataSource]="dataSource" [treeControl]="treeControl">
+    <cdk-tree-node *cdkTreeNodeDef="let node" cdkTreeNodePadding cdkTreeNodePaddingIndent="24">
+      {{ node.name }}
+    </cdk-tree-node>
+    <cdk-tree-node *cdkTreeNodeDef="let node; when: hasChild" cdkTreeNodePadding cdkTreeNodePaddingIndent="24">
+      <button cdkTreeNodeToggle>
+        {{ treeControl.isExpanded(node) ? '-' : '+' }}
+      </button>
+      {{ node.name }}
+    </cdk-tree-node> 
+  </cdk-tree>
+</div>
+<div>Number of cdk-tree-node elements rendered: {{ numCdkTreeNodes }}</div>
+
+<!-- VIRTUALLY SCROLLING TREE WHOOHOO :) -->
+<p>With virtual scrolling: We don't get the nice cdk-tree directives, BUT since we still have the underlying FlatTreeControl, we actually have a ton of control over how our tree behaves. Turns out cdk-tree directives are only a light wrapper around MatTreeFlatDataSource and TreeControl!</p>
+<cdk-virtual-scroll-viewport class="virtual-scroll-container" itemSize="18">
+  <ng-container *cdkVirtualFor="let node of dataSource">
+    <!-- Note that the [style.padding-left] is essentially what cdkTreeNodePadding is doing under the hood -->
+    <div class="node" [style.padding-left]="node.level * 24 + 'px'">
+      <!-- Note that treeControl.toggle(node) is essentially what cdkTreeNodeToggle is doing under the hood -->
+      <button (click)="treeControl.toggle(node)" *ngIf="node.hasChildren">
+        {{ treeControl.isExpanded(node) ? '-' : '+' }}
+      </button>
+      {{ node.name }}
+    </div>
+  </ng-container>
+</cdk-virtual-scroll-viewport>
+<div>Number of .node elements rendered: {{ numTreeNodes }} (Click expand all to see the difference!)</div>
